@@ -1,0 +1,7 @@
+- name: create ECR
+  cloudformation:
+    stack_name: "esm-lounge-test-ecr"
+    state: present
+    template: cfs/ecr.yml
+    template_parameters:
+      RepositoryName: "esm-lounge-test"

@@ -1,0 +1,36 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  RepositoryName:
+    Type: String
+    Default: "esm-lounge-test"
+
+Resources:
+  ESMLoungeTestRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Ref RepositoryName
+      RepositoryPolicyText:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Sid: AllowPushPull
+            Effect: Allow
+            Principal:
+              AWS:
+                - "arn:aws:iam::938859087688:user/eks_ecs_user"
+            Action:
+              - "ecr:GetDownloadUrlForLayer"
+              - "ecr:BatchGetImage"
+              - "ecr:BatchCheckLayerAvailability"
+              - "ecr:PutImage"
+              - "ecr:InitiateLayerUpload"
+              - "ecr:UploadLayerPart"
+              - "ecr:CompleteLayerUpload"
+
+Outputs:
+  Arn:
+    Value: !GetAtt ESMLoungeTestRepository.Arn
+    Export:
+      Name: !Sub "${AWS::Region}-${AWS::StackName}-ECRArn"
