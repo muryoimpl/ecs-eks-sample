@@ -1,0 +1,7 @@
+- name: create vpc and subnets
+  cloudformation:
+    stack_name: "esm-lounge-test-vpc"
+    state: present
+    template: cfs/vpc_and_subnet.yml
+    template_parameters:
+      VPCName: "esm-lounge-test"
