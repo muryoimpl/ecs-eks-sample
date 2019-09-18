@@ -5,3 +5,11 @@
     template: cfs/ecr.yml
     template_parameters:
       RepositoryName: "esm-lounge-test"
+
+- name: create ALB
+  cloudformation:
+    stack_name: "esm-lounge-test-alb"
+    state: present
+    template: cfs/alb.yml
+    template_parameters:
+      VPCStackName: "esm-lounge-test-vpc"
