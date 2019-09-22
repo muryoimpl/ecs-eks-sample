@@ -1,0 +1,15 @@
+---
+- name: create RDS
+  cloudformation:
+    stack_name: "esm-lounge-test-rds"
+    state: present
+    template: cfs/rds.yml
+    template_parameters:
+      DBIdentifier: lounge
+      DBName: lounge_production
+      DBUser: lounge
+      DBPassword: passw0rd!!
+      DBAllocatedStorage: 20
+      DBInstanceClass: db.t2.small
+      VPCStackName: "esm-lounge-test-vpc"
+      AvailabilityZone: "ap-northeast-1d"

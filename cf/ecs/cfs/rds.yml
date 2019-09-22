@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Parameters:
+  DBName:
+    Default: MyDatabase
+    Type: String
+  DBUser:
+    NoEcho: 'true'
+    Type: String
+  DBPassword:
+    NoEcho: 'true'
+    Type: String
+  DBAllocatedStorage:
+    Default: 20
+    Type: Number
+  DBInstanceClass:
+    Type: String
+    Default: db.t2.small
+  VPCStackName:
+    Description: The name of the VPC stack name.
+    Type: String
+  AvailabilityZone:
+    Type: String
+  SubnetGroupName:
+    Type: String
+    Default: esm-lounge-test
+  DBIdentifier:
+    Type: String
+
+Resources:
+  ESMLoungeTestDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: subnet for esm-lounge-test
+      DBSubnetGroupName: !Ref "SubnetGroupName"
+      SubnetIds:
+        - Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "PrivateSubnet2"]]
+        - Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "PrivateSubnet3"]]
+      Tags:
+        - Key: Name
+          Value: esm-lounge-test
+
+  DBEC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId:
+        Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "VPC"]]
+      GroupDescription: "EC2 SecurityGroup for DB"
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 3306
+        ToPort: 3306
+        SourceSecurityGroupId:
+          Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "DefaultSecurityGroup"]]
+
+  DBSecurityGroup:
+    Type: AWS::RDS::DBSecurityGroup
+    Properties:
+      GroupDescription: "RDS SecurityGroup for DB"
+      EC2VpcId:
+        Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "VPC"]]
+      DBSecurityGroupIngress:
+        EC2SecurityGroupId: !Ref "DBEC2SecurityGroup"
+
+  MasterDB:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: !Ref "DBName"
+      DBInstanceIdentifier: !Ref "DBIdentifier"
+      AvailabilityZone: !Ref "AvailabilityZone"
+      AllocatedStorage: !Ref "DBAllocatedStorage"
+      DBInstanceClass: !Ref "DBInstanceClass"
+      Engine: MySQL
+      EngineVersion: 5.7.26
+      MasterUsername: !Ref "DBUser"
+      MasterUserPassword: !Ref "DBPassword"
+      DBSubnetGroupName: !Ref "ESMLoungeTestDBSubnetGroup"
+      Tags:
+      - Key: Name
+        Value: Master Database
+      VPCSecurityGroups:
+      - !Ref "DBEC2SecurityGroup"
+    DeletionPolicy: Snapshot
+
+Outputs:
+  DatabaseURL:
+    Description: "database url for production"
+    Value:
+      !Join ["", ["mysql2://", !Ref "DBUser", ":", !Ref "DBPassword", "@", !GetAtt "MasterDB.Endpoint.Address", ":", !GetAtt "MasterDB.Endpoint.Port", "/", !Ref "DBName"]]
+    Export:
+      Name: !Sub "${AWS::Region}-${AWS::StackName}-DatabaseURL"
