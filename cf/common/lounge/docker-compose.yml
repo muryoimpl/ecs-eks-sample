@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7.26
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../docker/mysql/volumes:/var/lib/mysql
+
+  lounge:
+    build:
+      context: ./
+      dockerfile: Dockerfile.dev
+    tty: true
+    stdin_open: true
+    # environment:
+    #   DATABASE_URL: 'mysql2://root:@db:3306'
+    volumes:
+      - './:/lounge'
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
