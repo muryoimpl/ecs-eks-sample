@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7.26
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../docker/mysql/volumes:/var/lib/mysql
+
+  lounge:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    tty: true
+    stdin_open: true
+    environment:
+      DATABASE_URL: 'mysql2://root:@db:3306'
+      RAILS_MASTER_KEY: 57ebdf4c33aef3bffb796b470f301c5e
+      SECRET_KEY_BASE: 0bf088245270bb255c72f14c1ab6ade6cd14346304640cd3e1f3e9c08115ac3edc55f234e6a996e311a18582c2c108f22349148b73f74b25c7c497e976b1280a
+    volumes:
+      - './:/lounge'
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
