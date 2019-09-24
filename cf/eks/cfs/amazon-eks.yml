@@ -174,7 +174,7 @@ Metadata:
           default: EKS Cluster
         Parameters:
           - ClusterName
-          - ClusterControlPlaneSecurityGroup
+          - ControlPlaneSecurityGroup
       - Label:
           default: Worker Node Configuration
         Parameters:
@@ -500,7 +500,7 @@ Resources:
     Properties:
       Description: Allow worker Kubelets and pods to receive communication from the cluster control plane
       GroupId: !Ref NodeSecurityGroup
-      SourceSecurityGroupId: !Ref ClusterControlPlaneSecurityGroup
+      SourceSecurityGroupId: !Ref ControlPlaneSecurityGroup
       IpProtocol: tcp
       FromPort: 1025
       ToPort: 65535
@@ -510,7 +510,7 @@ Resources:
     DependsOn: NodeSecurityGroup
     Properties:
       Description: Allow the cluster control plane to communicate with worker Kubelet and pods
-      GroupId: !Ref ClusterControlPlaneSecurityGroup
+      GroupId: !Ref ControlPlaneSecurityGroup
       DestinationSecurityGroupId: !Ref NodeSecurityGroup
       IpProtocol: tcp
       FromPort: 1025
@@ -522,7 +522,7 @@ Resources:
     Properties:
       Description: Allow pods running extension API servers on port 443 to receive communication from cluster control plane
       GroupId: !Ref NodeSecurityGroup
-      SourceSecurityGroupId: !Ref ClusterControlPlaneSecurityGroup
+      SourceSecurityGroupId: !Ref ControlPlaneSecurityGroup
       IpProtocol: tcp
       FromPort: 443
       ToPort: 443
@@ -532,7 +532,7 @@ Resources:
     DependsOn: NodeSecurityGroup
     Properties:
       Description: Allow the cluster control plane to communicate with pods running extension API servers on port 443
-      GroupId: !Ref ClusterControlPlaneSecurityGroup
+      GroupId: !Ref ControlPlaneSecurityGroup
       DestinationSecurityGroupId: !Ref NodeSecurityGroup
       IpProtocol: tcp
       FromPort: 443
@@ -543,7 +543,7 @@ Resources:
     DependsOn: NodeSecurityGroup
     Properties:
       Description: Allow pods to communicate with the cluster API Server
-      GroupId: !Ref ClusterControlPlaneSecurityGroup
+      GroupId: !Ref ControlPlaneSecurityGroup
       SourceSecurityGroupId: !Ref NodeSecurityGroup
       IpProtocol: tcp
       ToPort: 443
