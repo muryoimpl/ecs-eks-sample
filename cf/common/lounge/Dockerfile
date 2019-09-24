@@ -13,12 +13,9 @@ RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources
 RUN apt-get update && apt-get install -y build-essential nodejs yarn
 RUN gem install bundler
 
-RUN mkdir /lounge
-WORKDIR /lounge
-ADD Gemfile /lounge/Gemfile
-ADD Gemfile.lock /lounge/Gemfile.lock
-RUN bundle install --without development test
 ADD . /lounge
+WORKDIR /lounge
+RUN bundle install --without development test
 
 RUN bundle exec rails assets:precompile
 EXPOSE  3000
