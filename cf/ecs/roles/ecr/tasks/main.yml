@@ -1,0 +1,25 @@
+---
+- name: get login info
+  command: |
+    aws ecr get-login --registry-ids 938859087688 --no-include-email --region ap-northeast-1
+  register: login_command
+
+- name: login
+  command: "{{ login_command.stdout }}"
+
+- name: build image
+  command: |
+    docker build -t esm-lounge-test ../common/lounge/
+
+- name: tag
+  command: |
+    docker tag esm-lounge-test:latest 938859087688.dkr.ecr.ap-northeast-1.amazonaws.com/esm-lounge-test:latest
+
+- name: push
+  command: |
+    docker push 938859087688.dkr.ecr.ap-northeast-1.amazonaws.com/esm-lounge-test:latest
+
+- name: remove unused
+  command: |
+    docker rmi $(docker images -f dangling=true -q)
+  ignore_errors: true

@@ -1,0 +1,22 @@
+---
+- name: run migrate task
+  command: |
+    aws ecs run-task \
+      --task-definition db-migrate \
+      --cluster esm-lounge-test
+  register: migrate_task
+
+- name: wait for stop
+  command: |
+    aws ecs wait tasks-stopped \
+      --cluster esm-lounge-test \
+      --task {{(migrate_task.stdout|from_json)["tasks"][0]["taskArn"]}}
+
+- name: update service
+  command: |
+    aws ecs update-service \
+      --service Web \
+      --cluster esm-lounge-test \
+      --task-definition db-migrate \
+      --desired-count 2 \
+      --deployment-configuration maximumPercent=200,minimumHealthyPercent=50

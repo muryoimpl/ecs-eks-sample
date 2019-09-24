@@ -1,0 +1,17 @@
+---
+- name: Create service and migrate task
+  cloudformation:
+    stack_name: "esm-lounge-test-ecs-service"
+    state: present
+    template: cfs/ecs_service.yml
+    template_parameters:
+      VPCStackName: "esm-lounge-test-vpc"
+      ALBStackName: "esm-lounge-test-alb"
+      RDSStackName: "esm-lounge-test-rds"
+      ServiceName: "Web"
+      ImageUrl: 938859087688.dkr.ecr.ap-northeast-1.amazonaws.com/esm-lounge-test:latest
+      ContainerPort: 3000
+      ContainerCpu: 256
+      ContainerMemory: 512
+      Path: "*"
+      DesiredCount: 2
