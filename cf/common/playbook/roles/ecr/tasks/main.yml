@@ -9,7 +9,7 @@
 
 - name: build image
   command: |
-    docker build -t esm-lounge-test ../common/lounge/
+    docker build -t esm-lounge-test ../lounge/
 
 - name: tag
   command: |
