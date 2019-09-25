@@ -1,0 +1,8 @@
+- hosts: aws
+  connection: local
+  gather_facts: False
+  environment:
+    AWS_PROFILE: eks_ecs_user
+    AWS_REGION: ap-northeast-1
+  roles:
+    - vpc

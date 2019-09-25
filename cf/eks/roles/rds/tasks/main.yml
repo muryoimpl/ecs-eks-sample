@@ -1,0 +1,17 @@
+---
+- name: create RDS
+  cloudformation:
+    stack_name: "test-eks-rds"
+    state: present
+    template: cfs/rds.yml
+    template_parameters:
+      DBIdentifier: lounge
+      DBName: lounge_production
+      DBUser: lounge
+      DBPassword: $passw0rd!
+      DBAllocatedStorage: 20
+      DBInstanceClass: "{{ rds.DBInstanceClass }}"
+      SubnetGroupName: "test-eks-subnets"
+      Subnets: "{{ rds.Subnets }}"
+      VPCId: "{{ rds.VPCId }}"
+      NodeGroupSecurityGroupId: "{{ rds.NodeGroupSecurityGroupId }}"

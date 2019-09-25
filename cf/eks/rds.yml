@@ -5,4 +5,4 @@
     AWS_PROFILE: eks_ecs_user
     AWS_REGION: ap-northeast-1
   roles:
-    - eks_build
+    - rds

@@ -1,0 +1,6 @@
+---
+rds:
+  DBInstanceClass: db.t2.small
+  Subnets: "subnet-xxx,subnet-yyy" # comma separated string
+  VPCId: ""
+  NodeGroupSecurityGroupId: ""
