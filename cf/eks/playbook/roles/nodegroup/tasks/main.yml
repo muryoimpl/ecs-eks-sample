@@ -1,0 +1,10 @@
+---
+- name: create stack
+  cloudformation:
+    stack_name: "eks-nodegroup"
+    state: present
+    template: cfs/amazon-eks-nodegroup.yaml
+    template_parameters:
+      KeyName: "{{ nodegroup.KeyName }}"
+      NodeImageId: ami-0a67c71d2ab43d36f
+

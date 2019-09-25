@@ -1,0 +1,20 @@
+---
+rds:
+  DBInstanceClass: db.t2.small
+  Subnets: "subnet-xxx,subnet-yyy" # comma separated string
+  VPCId: ""
+  NodeGroupSecurityGroupId: ""
+
+nodegroup:
+  KeyName:
+  NodeInstanceType: t2.medium
+  NodeAutoScalingGroupMinSize: 1
+  NodeAutoScalingGroupMaxSize: 2
+  NodeAutoScalingGroupDesiredCapacity: 1
+  NodeVolumeSize: 20
+  ClusterName: eks-test
+  BootstrapArguments: ""
+  NodeGroupName: "node-group"
+  ClusterControlPlaneSecurityGroup:
+  VpcId:
+  Subnets:

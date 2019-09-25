@@ -143,7 +143,7 @@ Parameters:
 
   Subnets:
     Description: The subnets where workers can be created.
-    Type: List<AWS::EC2::Subnet::Id>
+    Type: String
 
 Metadata:
 
@@ -280,7 +280,8 @@ Resources:
       LaunchConfigurationName: !Ref NodeLaunchConfig
       MinSize: !Ref NodeAutoScalingGroupMinSize
       MaxSize: !Ref NodeAutoScalingGroupMaxSize
-      VPCZoneIdentifier: !Ref Subnets
+      VPCZoneIdentifier:
+        !Split [",", !Ref "Subnets"]
       Tags:
         - Key: Name
           Value: !Sub ${ClusterName}-${NodeGroupName}-Node
