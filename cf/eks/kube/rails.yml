@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails
+  labels:
+    app: rails
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rails
+  template:
+    metadata:
+      labels:
+        app: rails
+    spec:
+      containers:
+        - image: "938859087688.dkr.ecr.ap-northeast-1.amazonaws.com/esm-lounge-test:latest"
+          name: rails
+          env:
+            - name: RAILS_ENV
+              value: "production"
+            - name: RAILS_LOG_TO_STDOUT
+              value: "true"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rails
+                  key: database_url
+            - name: RAILS_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: rails
+                  key: master_key
+            - name: SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: rails
+                  key: secret_key_base
+          ports:
+            - containerPort: 3000
+          command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
