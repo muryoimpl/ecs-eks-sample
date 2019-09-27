@@ -6,5 +6,16 @@
     template: cfs/amazon-eks-nodegroup.yaml
     template_parameters:
       KeyName: "{{ nodegroup.KeyName }}"
-      NodeImageId: ami-0a67c71d2ab43d36f
-
+      NodeImageId: "{{ nodegroup.NodeImageId }}"
+      NodeInstanceType: "{{ nodegroup.NodeInstanceType }}"
+      BootstrapArguments: ""
+      NodeAutoScalingGroupMinSize: "{{ nodegroup.NodeAutoScalingGroupMinSize }}"
+      NodeAutoScalingGroupMaxSize: "{{ nodegroup.NodeAutoScalingGroupMaxSize }}"
+      NodeAutoScalingGroupDesiredCapacity:  "{{ nodegroup.NodeAutoScalingGroupDesiredCapacity }}"
+      NodeVolumeSize: "{{ nodegroup.NodeVolumeSize }}"
+      ClusterName: "{{ nodegroup.ClusterName }}"
+      BootstrapArguments: ""
+      NodeGroupName: "{{ nodegroup.NodeGroupName }}"
+      ClusterControlPlaneSecurityGroup: "{{ ControlPlaneEgressToNodeSecurityGroup }}"
+      VpcId: "{{ nodegroup.VpcId }}"
+      Subnets: "{{ nodegroup.Subnets }}"
