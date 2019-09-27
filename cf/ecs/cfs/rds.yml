@@ -19,6 +19,9 @@ Parameters:
   VPCStackName:
     Description: The name of the VPC stack name.
     Type: String
+  ALBStackName:
+    Description: The name of the VPC stack name.
+    Type: String
   AvailabilityZone:
     Type: String
   SubnetGroupName:
@@ -34,8 +37,8 @@ Resources:
       DBSubnetGroupDescription: subnet for esm-lounge-test
       DBSubnetGroupName: !Ref "SubnetGroupName"
       SubnetIds:
-        - Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "PrivateSubnet2"]]
-        - Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "PrivateSubnet3"]]
+        - Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "PrivateSubnet0"]]
+        - Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "PrivateSubnet1"]]
       Tags:
         - Key: Name
           Value: esm-lounge-test
@@ -51,7 +54,11 @@ Resources:
         FromPort: 3306
         ToPort: 3306
         SourceSecurityGroupId:
-          Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "DefaultSecurityGroup"]]
+          Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "ALBStackName", "FargateContainerSecurityGroup"]]
+      - IpProtocol: tcp
+        FromPort: 3306
+        ToPort: 3306
+        CidrIp: "0.0.0.0/0"
 
   DBSecurityGroup:
     Type: AWS::RDS::DBSecurityGroup
