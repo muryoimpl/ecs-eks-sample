@@ -1,3 +1,4 @@
+# from https://amazon-eks.s3-us-west-2.amazonaws.com/cloudformation/2019-02-11/amazon-eks-vpc-private-subnets.yaml
 ---
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Amazon EKS Sample VPC - Private and Public subnets'
