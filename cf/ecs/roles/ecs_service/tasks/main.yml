@@ -8,10 +8,11 @@
       VPCStackName: "esm-lounge-test-vpc"
       ALBStackName: "esm-lounge-test-alb"
       RDSStackName: "esm-lounge-test-rds"
-      ServiceName: "Web"
-      ImageUrl: 938859087688.dkr.ecr.ap-northeast-1.amazonaws.com/esm-lounge-test:latest
+      ECSServiceName: "Web"
+      ImageUrl: "938859087688.dkr.ecr.ap-northeast-1.amazonaws.com/esm-lounge-test:latest"
       ContainerPort: 3000
       ContainerCpu: 256
       ContainerMemory: 512
       Path: "*"
-      DesiredCount: 2
+      DesiredCount: 0
+      SecretKeyBase: "60fa06ddd2d44881c44cde447d0450a144e98878f223bac44cb8e3c52036d01079b4db465358b6e0ae0ec9174b60d8796460ec99ae54a0a8952a546a8ac4e1f3"

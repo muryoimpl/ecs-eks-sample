@@ -12,4 +12,5 @@
       DBAllocatedStorage: 20
       DBInstanceClass: db.t2.small
       VPCStackName: "esm-lounge-test-vpc"
-      AvailabilityZone: "ap-northeast-1d"
+      AvailabilityZone: "ap-northeast-1a"
+      ALBStackName:  "esm-lounge-test-alb"

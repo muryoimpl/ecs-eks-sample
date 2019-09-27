@@ -13,7 +13,7 @@ Parameters:
     Type: String
     Default: esm-lounge-test-rds
 
-  ServiceName:
+  ECSServiceName:
     Type: String
     Default: Web
 
@@ -41,55 +41,15 @@ Parameters:
     Type: Number
     Default: 2
 
+  SecretKeyBase:
+    Type: String
+
 Resources:
 
-  # TaskDefinition:
-  #   Type: AWS::ECS::TaskDefinition
-  #   Properties:
-  #     Family: db-migrate
-  #     Cpu: !Ref 'ContainerCpu'
-  #     Memory: !Ref 'ContainerMemory'
-  #     NetworkMode: awsvpc
-  #     RequiresCompatibilities:
-  #       - FARGATE
-  #     ExecutionRoleArn:
-  #       Fn::ImportValue:
-  #         !Join ['-', [!Ref "AWS::Region", !Ref 'ALBStackName', 'ECSTaskExecutionRole']]
-  #     TaskRoleArn:
-  #       Fn::ImportValue:
-  #         !Join ['-', [!Ref "AWS::Region", !Ref 'ALBStackName', 'ECSTaskExecutionRole']]
-  #     ContainerDefinitions:
-  #       - Name: !Ref 'ServiceName'
-  #         Cpu: !Ref 'ContainerCpu'
-  #         Memory: !Ref 'ContainerMemory'
-  #         Image: !Ref 'ImageUrl'
-  #         Command:
-  #           - bundle
-  #           - exec
-  #           - rails
-  #           - db:migrate
-  #         Environment:
-  #           - Name: DATABASE_URL
-  #             Value:
-  #               Fn::ImportValue:
-  #                 !Join ["-", [!Ref "AWS::Region", !Ref "RDSStackName", "DatabaseURL"]]
-  #           - Name: RAILS_ENV
-  #             Value: production
-  #           - Name: RAILS_LOG_TO_STDOUT
-  #             Value: "true"
-  #           - Name: SECRET_KEY_BASE
-  #             Value: "60fa06ddd2d44881c44cde447d0450a144e98878f223bac44cb8e3c52036d01079b4db465358b6e0ae0ec9174b60d8796460ec99ae54a0a8952a546a8ac4e1f3"
-  #         LogConfiguration:
-  #           LogDriver: awslogs
-  #           Options:
-  #             awslogs-group: "esm-lounge-test-migrate"
-  #             awslogs-region: "ap-northeast-1"
-  #             awslogs-stream-prefix: ecs
-
-  TaskDefinition:
+  TaskDefinitionMigrate:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: !Ref 'ServiceName'
+      Family: db-migrate
       Cpu: !Ref 'ContainerCpu'
       Memory: !Ref 'ContainerMemory'
       NetworkMode: awsvpc
@@ -97,12 +57,54 @@ Resources:
         - FARGATE
       ExecutionRoleArn:
         Fn::ImportValue:
-          !Join ['-', [!Ref "AWS::Region", !Ref 'ALBStackName', 'ECSRole']]
-      TaskRoleArn:
+              !Join ['-', [!Ref "AWS::Region", !Ref 'ALBStackName', 'ECSTaskExecutionRole']]
+      TaskRoleArn: !Ref "AWS::NoValue"
+      ContainerDefinitions:
+        - Name: !Ref 'ECSServiceName'
+          Cpu: !Ref 'ContainerCpu'
+          Memory: !Ref 'ContainerMemory'
+          Image: !Ref 'ImageUrl'
+          PortMappings:
+            - ContainerPort: !Ref 'ContainerPort'
+          Command:
+            - bundle
+            - exec
+            - rails
+            - db:migrate
+          Environment:
+            - Name: DATABASE_URL
+              Value:
+                Fn::ImportValue:
+                  !Join ["-", [!Ref "AWS::Region", !Ref "RDSStackName", "DatabaseURL"]]
+            - Name: RAILS_ENV
+              Value: production
+            - Name: RAILS_LOG_TO_STDOUT
+              Value: "true"
+            - Name: SECRET_KEY_BASE
+              Value: !Ref "SecretKeyBase"
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: true
+              awslogs-group: "esm-lounge-test-migrate"
+              awslogs-region: "ap-northeast-1"
+              awslogs-stream-prefix: ecs
+
+  TaskDefinitionWeb:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Ref 'ECSServiceName'
+      Cpu: !Ref 'ContainerCpu'
+      Memory: !Ref 'ContainerMemory'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn:
         Fn::ImportValue:
           !Join ['-', [!Ref "AWS::Region", !Ref 'ALBStackName', 'ECSTaskExecutionRole']]
+      TaskRoleArn: !Ref "AWS::NoValue"
       ContainerDefinitions:
-        - Name: !Ref 'ServiceName'
+        - Name: !Ref 'ECSServiceName'
           Cpu: !Ref 'ContainerCpu'
           Memory: !Ref 'ContainerMemory'
           Image: !Ref 'ImageUrl'
@@ -126,29 +128,29 @@ Resources:
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: "esm-lounge-test-migrate"
+              awslogs-create-group: true
+              awslogs-group: "esm-lounge-test-web"
               awslogs-region: "ap-northeast-1"
               awslogs-stream-prefix: ecs
 
   Service:
     Type: AWS::ECS::Service
-    DependsOn: LoadBalancerRule
+    DependsOn:
+      - "ALBListener"
+      - "LoadBalancerRule"
     Properties:
-      ServiceName: !Ref 'ServiceName'
+      ServiceName: !Ref 'ECSServiceName'
       Cluster:
         Fn::ImportValue:
           !Join ['-', [!Ref "AWS::Region", !Ref 'ALBStackName', 'ClusterName']]
-      LaunchType: FARGATE
+      LaunchType: "FARGATE"
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 50
       DesiredCount: !Ref 'DesiredCount'
-      Role:
-        Fn::ImportValue:
-          !Join ['-', [!Ref "AWS::Region", !Ref 'ALBStackName', 'ECSRole']]
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: ENABLED
+          AssignPublicIp: "DISABLED"
           SecurityGroups:
             - Fn::ImportValue:
                 !Join ['-', [!Ref "AWS::Region", !Ref 'ALBStackName', 'FargateContainerSecurityGroup']]
@@ -157,9 +159,9 @@ Resources:
                 !Join ['-', [!Ref "AWS::Region", !Ref 'VPCStackName', 'PrivateSubnet0']]
             - Fn::ImportValue:
                 !Join ['-', [!Ref "AWS::Region", !Ref 'VPCStackName', 'PrivateSubnet1']]
-      TaskDefinition: !Ref 'TaskDefinition'
+      TaskDefinition: !Ref 'TaskDefinitionWeb'
       LoadBalancers:
-        - ContainerName: !Ref 'ServiceName'
+        - ContainerName: !Ref 'ECSServiceName'
           ContainerPort: !Ref 'ContainerPort'
           TargetGroupArn: !Ref 'TargetGroup'
 
@@ -172,13 +174,27 @@ Resources:
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
       TargetType: ip
-      Name: !Ref 'ServiceName'
+      Name: !Ref 'ECSServiceName'
       Port: !Ref 'ContainerPort'
       Protocol: HTTP
       UnhealthyThresholdCount: 2
       VpcId:
         Fn::ImportValue:
           !Join ['-', [!Ref "AWS::Region", !Ref 'VPCStackName', 'VPC']]
+
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn:
+      - "TargetGroup"
+    Properties:
+      DefaultActions:
+        - TargetGroupArn: !Ref "TargetGroup"
+          Type: "forward"
+      LoadBalancerArn:
+        Fn::ImportValue:
+          !Join ['-', [!Ref "AWS::Region", !Ref "ALBStackName", "LoadBalancer"]]
+      Port: 80
+      Protocol: HTTP
 
   LoadBalancerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
@@ -190,6 +206,7 @@ Resources:
         - Field: path-pattern
           Values: [!Ref 'Path']
       ListenerArn:
-        Fn::ImportValue:
-          !Join ['-', [!Ref "AWS::Region", !Ref 'ALBStackName', 'PublicListener']]
+        !Ref "ALBListener"
+        # Fn::ImportValue:
+        #   !Join ['-', [!Ref "AWS::Region", !Ref 'ALBStackName', 'ALBListener']]
       Priority: 1
