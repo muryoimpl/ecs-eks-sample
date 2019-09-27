@@ -52,5 +52,6 @@ $ kubectl exec rails-xxxxxxxx -- bash -c 'cd lounge; bundle exec rails db:migrat
 $ kubectl describe services
 
 # アプリのログを CloudWatch Logs に集約する。k8s という名前のstream ができる
+$ curl https://raw.githubusercontent.com/fluent/fluentd-kubernetes-daemonset/master/fluentd-daemonset-cloudwatch-rbac.yaml > kube/fluentd-daemonset-cloudwatch-rbac.yaml
 $ kubectl apply -f kube/fluentd-daemonset-cloudwatch-rbac.yaml
 ```
