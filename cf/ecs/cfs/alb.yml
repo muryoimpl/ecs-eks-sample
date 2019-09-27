@@ -53,8 +53,8 @@ Resources:
       - Key: idle_timeout.timeout_seconds
         Value: "30"
       Subnets:
-        - Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "PrivateSubnet0"]]
-        - Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "PrivateSubnet1"]]
+        - Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "PublicSubnet0"]]
+        - Fn::ImportValue: !Join ["-", [!Ref "AWS::Region", !Ref "VPCStackName", "PublicSubnet1"]]
       SecurityGroups: [!Ref "PublicLoadBalancerSG"]
       Type: "application"
       Name: esm-louge-test-alb

@@ -13,6 +13,6 @@
       ContainerPort: 3000
       ContainerCpu: 256
       ContainerMemory: 512
-      Path: "*"
+      Path: "/*"
       DesiredCount: 0
       SecretKeyBase: "60fa06ddd2d44881c44cde447d0450a144e98878f223bac44cb8e3c52036d01079b4db465358b6e0ae0ec9174b60d8796460ec99ae54a0a8952a546a8ac4e1f3"
